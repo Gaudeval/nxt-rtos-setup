@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+if [ ! $# -ge 1 ]
+then
+	echo "Usage: $0 [FILE]..."
+	echo "Send files to a nxt brick connected through usb."
+	exit 1
+fi
+
+NEXTTOOL_BINARY=`which nexttool`
+
+# Test if the nexttool binary is executable.
+[ -x "${NEXTTOOL_BINARY}" ]
+
+# Send all specified files to the brick through usb.
+while [ $# -gt 0 ]; do
+	${NEXTTOOL_BINARY} /COM=usb -download="$1"
+	shift 1
+done

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+
+if [ ! $# -eq 1 ]
+then
+	echo "Usage: $0 <oil_file>"
+	echo "Parse an oil file to generate a project makefile and build directory."
+	exit 1
+fi
+
+GOIL_BINARY=`which goil`
+GOIL_TEMPLATES="${TRAMPOLINE_BASE_PATH}/goil/templates"
+
+# Test if the goil binary is executable.
+[ -x "${GOIL_BINARY}" ]
+# Test if the template directory exists.
+[ -d "${GOIL_TEMPLATES}" ]
+
+# Run goil for each of the specified files.
+${GOIL_BINARY} -t=arm/nxt --templates=${GOIL_TEMPLATES} --generate-makefile --interrupts $1
