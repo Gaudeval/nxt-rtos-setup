@@ -1,0 +1,30 @@
+This should contains all the required files or scripts to build tools for the Lego Nxt brick under Linux or Mac OS X. Feel free to adapt to your tastes:
+	* app_template/ : Template files for applications source and oil files. Used by scripts/nxt_create.
+	* gcc/ : holds build.sh which can be used to compile a arm-elf gcc and binutils. The compiled files are installed under the install directory.
+	* nexttool/ : holds Free Pascal Compiler, nexttool and libusb sources... compile manually.
+			pushd ./
+			cd fpc/usr/bin
+			rm ppc386
+			ln -s ../lib/fpc/2.4.2/ppc386 ./ppc386
+			cd ../lib/fpc/2.4.2
+			./samplecfg `pwd` ./
+			export PPC_CONFIG_PATH=`pwd`/fpc.cfg
+			cp fpc.cfg ~/.fpc.cfg
+			popd
+
+			pushd ./
+			bunzip -kc libusb-1.0.8.tar.bz2 | tar -xf -
+			cd libusb-1.0.8
+			./configure --prefix=`pwd`/../install --exec-prefix=`pwd`/../install
+			make; make install
+			popd
+
+		  cd nexttool
+			Edit nexttool.mak
+				Add PFLAGS += -Fl /path/to/libusb
+				Add -Xt aux options du linker.
+			Add /path/to/fpc/usr/bin au PATH
+			make -f nexttool.make
+
+	* trampoline/ : holds build.sh which can be used to fetch trampoline (from the svn repository) and compile the goil tool. Compiled files are installed under the install directory.
+	* scripts/ : holds a few helpfull scripts to create an application source and goil files, process a goil file and send, using nexttool, files to a brick.
