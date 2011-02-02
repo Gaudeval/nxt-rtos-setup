@@ -9,13 +9,30 @@ then
 	exit 1
 fi
 
-NEXTTOOL_BINARY=`which nexttool`
+# Find the nexttool binary
+NEXTTOOL_BINARY=`which nexttool 2>/dev/null || true`
 
 # Test if the nexttool binary is executable.
-[ -x "${NEXTTOOL_BINARY}" ]
+([ -n "${NEXTTOOL_BINARY}" ] && [ -x "${NEXTTOOL_BINARY}" ]) || \
+	(echo "Error: nexttool binary cannot be executed." && exit 1)
+
+# Test if at least one nxt brick has been found.
+([ -n "`${NEXTTOOL_BINARY} -listbricks`" ]) ||  \
+	(echo "Error: No nxt brick found." && exit 1)
 
 # Send all specified files to the brick through usb.
 while [ $# -gt 0 ]; do
+	# Check the existence of the file.
+	([ -e $1 ] && [ -r $1 ]) || \
+		(echo "Error: file \"$1\" cannot be read." && exit 1)
+
+	# Send the file on the brick.
 	${NEXTTOOL_BINARY} /COM=usb -download="$1"
+
+	# Check if the file is on the brick.
+	([ -n "`${NEXTTOOL_BINARY} /COM=usb -listfiles=\"$(basename $1)\" `" ]) || \
+		(echo "Error: file \"$(basename $1)\" not found on brick." && exit 1)
+	
 	shift 1
 done
+

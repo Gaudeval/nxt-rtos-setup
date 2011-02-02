@@ -11,15 +11,16 @@ fi
 
 # Check the non existence of the project.
 PROJECT_NAME=`echo "$1" | sed -e 's#/#_#g'`
-[ ! -e ${PROJECT_NAME} ]
+([ ! -e ${PROJECT_NAME} ]) || \
+	(echo "Warning: project \"${PROJECT_NAME}\" already exists." && exit 1)
 
 
 # Check the existence of the required template files.
 NXT_TEMPLATE_SOURCE_FILE="${NXT_APP_TEMPLATE_PATH}/c.m4"
 NXT_TEMPLATE_OIL_FILE="${NXT_APP_TEMPLATE_PATH}/oil.m4"
 
-[ -e "${NXT_TEMPLATE_SOURCE_FILE}" ]
-[ -e "${NXT_TEMPLATE_OIL_FILE}" ]
+([ -e "${NXT_TEMPLATE_SOURCE_FILE}" ] && [ -e "${NXT_TEMPLATE_OIL_FILE}" ]) || \
+	(echo "Error: required template files not found." && exit 1)
 
 # Create the project directory.
 mkdir "${PROJECT_NAME}"
@@ -48,8 +49,11 @@ process_template() {
 	   "${INPUT_FILE}" \
 	   > ${OUTPUT_FILE}
 
-	[ -e ${OUTPUT_FILE} ]
+	[ -e ${OUTPUT_FILE} ] || \
+		(echo "Error: file \"${OUTPUT_FILE}\" could not be created." && exit 1)
 }
 
 process_template "${NXT_TEMPLATE_SOURCE_FILE}" "${PROJECT_NAME}/${PROJECT_NAME}.c"
 process_template "${NXT_TEMPLATE_OIL_FILE}"    "${PROJECT_NAME}/${PROJECT_NAME}.oil"
+
+echo "Notice: project \"${PROJECT_NAME}\" has been created."

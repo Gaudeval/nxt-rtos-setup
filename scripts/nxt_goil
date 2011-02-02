@@ -10,13 +10,17 @@ then
 	exit 1
 fi
 
-GOIL_BINARY=`which goil`
+GOIL_BINARY=`which goil 2>/dev/null || true`
 GOIL_TEMPLATES="${TRAMPOLINE_BASE_PATH}/goil/templates"
 
 # Test if the goil binary is executable.
-[ -x "${GOIL_BINARY}" ]
+[ -x "${GOIL_BINARY}" ] || \
+	(echo "Error: goil binary cannox be executed." && exit 1)
+
 # Test if the template directory exists.
-[ -d "${GOIL_TEMPLATES}" ]
+[ -d "${GOIL_TEMPLATES}" ] || \
+	(echo "Error: goil templates directory \"${GOIL_TEMPLATES}\" does not exist." && exit 1)
 
 # Run goil for each of the specified files.
-${GOIL_BINARY} -t=arm/nxt --templates=${GOIL_TEMPLATES} --generate-makefile --interrupts $1
+${GOIL_BINARY} -t=arm/nxt --templates=${GOIL_TEMPLATES} --generate-makefile --interrupts $1 || \
+	(echo "Error: processing file \"$1\" failed.")
