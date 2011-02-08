@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+#set -e
 
 
 if [ ! $# -eq 1 ]
@@ -22,5 +22,5 @@ GOIL_TEMPLATES="${TRAMPOLINE_BASE_PATH}/goil/templates"
 	(echo "Error: goil templates directory \"${GOIL_TEMPLATES}\" does not exist." && exit 1)
 
 # Run goil for each of the specified files.
-${GOIL_BINARY} -t=arm/nxt --templates=${GOIL_TEMPLATES} --generate-makefile --interrupts $1 || \
+(${GOIL_BINARY} -t=arm/nxt --templates=${GOIL_TEMPLATES} --generate-makefile --interrupts $1) || \
 	(echo "Error: processing file \"$1\" failed.")
