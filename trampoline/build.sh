@@ -8,8 +8,8 @@ TRAMPOLINE_REPO_URL=https://trampoline.rts-software.org/svn/trunk
 TRAMPOLINE_REPO_USER=anonymous
 TRAMPOLINE_REPO_PASS=anonymous
 
-LIBPM_VERSION=2.1.0
-LIBPM_URL=http://galgas.rts-software.org/download/${LIBPM_VERSION}/libpm-lf.tar.bz2
+LIBPM_VERSION=2.3.0
+LIBPM_URL=http://galgas.rts-software.org/download/${LIBPM_VERSION}/galgas-sources-lf.tar.bz2
 
 # Flags
 CPUS=$(getconf _NPROCESSORS_ONLN)
@@ -58,29 +58,31 @@ function log {
 			#echo "******************************************************************"
 }
 
-LIBPM_FILE=${SOURCES}/libpm.tar.bz2
+LIBPM_FILE=${SOURCES}/galgas.tar.bz2
 
 if [ ! -e ${LIBPM_FILE} ]; then
 	log "Downloading Libpm ($LIBPM_URL)"
 	wget -qc $LIBPM_URL -O ${LIBPM_FILE}
 fi
 
-if [ ! -e libpm ]; then
+if [ ! -e galgas ]; then
 	log "Unpacking ${LIBPM_FILE}"
 	bunzip2 -kc ${LIBPM_FILE} | tar -xf -
 fi
 
 if [ ! -e ${PREFIX}/trampoline ]; then
 	log "Checking out trampoline (${TRAMPOLINE_REPO_URL})"
-	svn checkout --quiet --username ${TRAMPOLINE_REPO_USER} --password ${TRAMPOLINE_REPO_PASS} ${TRAMPOLINE_REPO_URL} ${SOURCES}/trampoline
+	#svn checkout --quiet --username ${TRAMPOLINE_REPO_USER} --password ${TRAMPOLINE_REPO_PASS} ${TRAMPOLINE_REPO_URL} ${SOURCES}/trampoline
 	cp -r ${SOURCES}/trampoline ${PREFIX}/trampoline
 fi
 
-if [ ! -e ${PREFIX}/trampoline/libpm ]; then
+if [ ! -e ${PREFIX}/trampoline/galgas ]; then
 	log "Installing libpm in trampoline"
-	cp -r libpm ${PREFIX}/trampoline/
+	cp -r galgas ${PREFIX}/trampoline/
+	cp ${PREFIX}/trampoline/goil/galgas_sources/GALGAS_OUTPUT/file_list.{mke,mak}
 fi
-export LIBPM_PATH=${PREFIX}/trampoline/libpm
+export LIBPM_DIRECTORY_PATH=${PREFIX}/trampoline/galgas/libpm
+export LIBPM_PATH=${PREFIX}/trampoline/galgas/libpm
 
 
 log "Moving to build goil ($GOIL_MAKEDIR)"
