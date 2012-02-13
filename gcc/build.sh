@@ -32,9 +32,9 @@ GCCVERSION=4.5.1
 GCC=gcc-${GCCVERSION}
 GCCURL=http://ftp.gnu.org/gnu/gcc/${GCC}/${GCC}.tar.gz
 
-BINUTILS=binutils-2.20
+BINUTILS=binutils-2.20.1
 NEWLIB=newlib-1.18.0
-GDB=gdb-7.2
+GDB=gdb-7.3.1
 
 GMP=gmp-5.0.1
 MPFR=mpfr-3.0.0
@@ -159,7 +159,7 @@ fetch ${NEWLIB} ftp://sources.redhat.com/pub/newlib/${NEWLIB}.tar.gz
 fetch ${GDB} http://ftp.gnu.org/gnu/gdb/${GDB}.tar.bz2
 
 fetch ${GMP} ftp://ftp.gmplib.org/pub/${GMP}/${GMP}.tar.bz2
-fetch ${MPFR} http://www.mpfr.org/mpfr-current/${MPFR}.tar.bz2
+fetch ${MPFR} http://www.mpfr.org/${MPFR}/${MPFR}.tar.bz2
 fetch ${MPC} http://www.multiprecision.org/mpc/download/${MPC}.tar.gz
 
 fetch ${LIBELF} http://www.mr511.de/software/${LIBELF}.tar.gz
