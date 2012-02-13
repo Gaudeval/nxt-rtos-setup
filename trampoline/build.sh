@@ -72,14 +72,17 @@ fi
 
 if [ ! -e ${PREFIX}/trampoline ]; then
 	log "Checking out trampoline (${TRAMPOLINE_REPO_URL})"
-	#svn checkout --quiet --username ${TRAMPOLINE_REPO_USER} --password ${TRAMPOLINE_REPO_PASS} ${TRAMPOLINE_REPO_URL} ${SOURCES}/trampoline
+	svn checkout --quiet --username ${TRAMPOLINE_REPO_USER} --password ${TRAMPOLINE_REPO_PASS} ${TRAMPOLINE_REPO_URL} ${SOURCES}/trampoline
 	cp -r ${SOURCES}/trampoline ${PREFIX}/trampoline
 fi
 
 if [ ! -e ${PREFIX}/trampoline/galgas ]; then
 	log "Installing libpm in trampoline"
 	cp -r galgas ${PREFIX}/trampoline/
-	cp ${PREFIX}/trampoline/goil/galgas_sources/GALGAS_OUTPUT/file_list.{mke,mak}
+
+	sed -e "s#\.\.#${PREFIX}/trampoline/galgas/#p" \
+	${PREFIX}/trampoline/galgas/galgas_sources/GALGAS_OUTPUT/file_list.mak \
+	> ${PREFIX}/trampoline/goil/galgas_sources/GALGAS_OUTPUT/file_list.mak 
 fi
 export LIBPM_DIRECTORY_PATH=${PREFIX}/trampoline/galgas/libpm
 export LIBPM_PATH=${PREFIX}/trampoline/galgas/libpm
