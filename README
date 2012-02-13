@@ -27,4 +27,5 @@ This should contains all the required files or scripts to build tools for the Le
 			make -f nexttool.make
 
 	* trampoline/ : holds build.sh which can be used to fetch trampoline (from the svn repository) and compile the goil tool. Compiled files are installed under the install directory.
+	  WARNING: Does not seem to work on Mac osx 10.6.8, probably a broken dependency to a different version of libpm.
 	* scripts/ : holds a few helpfull scripts to create an application source and goil files, process a goil file and send, using nexttool, files to a brick.
