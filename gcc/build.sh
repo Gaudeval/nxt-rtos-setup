@@ -1,15 +1,9 @@
 #!/bin/bash
 # Written by Uwe Hermann <uwe@hermann-uwe.de>, released as public domain.
 # Modified by Piotr Esden-Tempski <piotr@esden.net>, released as public domain.
+# Modified by Benjamin Lesage <blesage@irisa.fr>, released as public domain.
 
-#
-# Requirements (example is for Debian, replace package names as needed):
-#
-# apt-get install flex bison libgmp3-dev libmpfr-dev libncurses5-dev \
-# libmpc-dev autoconf texinfo build-essential
-#
-# Or on Ubuntu Maverick give `apt-get build-dep gcc-4.5` a try.
-#
+# Original repository: https://github.com/esden/summon-arm-toolchain
 
 # Stop if any command fails
 set -e
@@ -18,7 +12,7 @@ set -e
 # Settings section
 # You probably want to customize those
 ##############################################################################
-TARGET=arm-elf		# Or: TARGET=arm-elf
+TARGET=arm-elf		
 PREFIX=$(pwd)/install	# Install location of your final toolchain
 DEPS_PREFIX=$(pwd)/lib_install
 
@@ -247,89 +241,41 @@ if [ ! -e ${STAMPS}/${BINUTILS}.build ]; then
     rm -rf build/* ${BINUTILS}
 fi
 
-if [ ! -e ${STAMPS}/${GCC}-boot.build ]; then
-    unpack ${GCC} boot
-    cd build
-    log "Configuring ${GCC}-boot"
-    ../${GCC}/configure --target=${TARGET} \
-                      --prefix=${PREFIX} \
-                      --disable-shared \
-											--with-mpfr=${DEPS_PREFIX} \
-											--with-gmp=${DEPS_PREFIX} \
-											--with-mpc=${DEPS_PREFIX} \
-                      --enable-interwork \
-                      --enable-multilib \
-                      --enable-languages="c,c++" \
-                      --with-newlib \
-                      --without-headers \
-                      --with-gnu-as \
-                      --with-gnu-ld \
-                      --disable-nls \
-                      --disable-werror \
-		      --with-system-zlib \
-					--with-sysroot=${PREFIX} \
-		      ${GCCFLAGS}
-    log "Building ${GCC}-boot"
-    make ${MAKEFLAGS} all-gcc
-    install ${GCC}-boot install-gcc
-    cd ..
-    log "Cleaning up ${GCC}-boot"
-    touch ${STAMPS}/${GCC}-boot.build
-    rm -rf build/* ${GCC}
-fi
-
-if [ ! -e ${STAMPS}/${NEWLIB}.build ]; then
-    unpack ${NEWLIB}
-    cd build
-    log "Configuring ${NEWLIB}"
-    ../${NEWLIB}/configure --target=${TARGET} \
-                         --prefix=${PREFIX} \
-                         --enable-interwork \
-                         --enable-multilib \
-                         --with-gnu-as \
-                         --with-gnu-ld \
-                         --disable-nls \
-                         --disable-werror \
-                         --disable-newlib-supplied-syscalls \
-			 --with-float=soft
-    log "Building ${NEWLIB}"
-    make ${MAKEFLAGS} CFLAGS_FOR_TARGET="-msoft-float" CCASFLAGS="-msoft-float"
-    install ${NEWLIB} install
-    cd ..
-    log "Cleaning up ${NEWLIB}"
-    touch ${STAMPS}/${NEWLIB}.build
-    rm -rf build/* ${NEWLIB}
-fi
-
-# Yes, you need to build gcc again!
-if [ ! -e ${STAMPS}/${GCC}.build ]; then
-    unpack ${GCC}
-    cd build
-    log "Configuring ${GCC}"
-    ../${GCC}/configure --target=${TARGET} \
-                      --prefix=${PREFIX} \
-                      --disable-shared \
-											--with-mpfr=${DEPS_PREFIX} \
-											--with-gmp=${DEPS_PREFIX} \
-											--with-mpc=${DEPS_PREFIX} \
-                      --enable-interwork \
-                      --enable-multilib \
-                      --enable-languages="c,c++" \
-                      --with-newlib \
-                      --with-gnu-as \
-                      --with-gnu-ld \
-											--disable-nls \
-                      --disable-werror \
-											--with-sysroot=${PREFIX} \
-                      #--with-system-zlib \
-	 	     ${GCCFLAGS}
-    log "Building ${GCC}"
-    make ${MAKEFLAGS}
-    install ${GCC} install
-    cd ..
-    log "Cleaning up ${GCC}"
-    touch ${STAMPS}/${GCC}.build
-    rm -rf build/* ${GCC}
+if [ ! -e ${STAMPS}/${GCC}-${NEWLIB}.build ]; then
+		unpack ${GCC}
+		unpack ${NEWLIB}
+		log "Adding newlib symlink to gcc"
+		ln -fs `pwd`/${NEWLIB}/newlib ${GCC}
+		log "Adding libgloss symlink to gcc"
+		ln -fs `pwd`/${NEWLIB}/libgloss ${GCC}
+		cd build
+		log "Configuring ${GCC} and ${NEWLIB}"
+		../${GCC}/configure --target=${TARGET} \
+												--prefix=${PREFIX} \
+												--with-mpfr=${DEPS_PREFIX} \
+												--with-gmp=${DEPS_PREFIX} \
+												--with-mpc=${DEPS_PREFIX} \
+												--enable-interwork \
+												--disable-multilib \
+												--enable-languages="c,c++" \
+												--with-newlib \
+												--with-gnu-as \
+												--with-gnu-ld \
+												--disable-nls \
+												--disable-shared \
+												--disable-threads \
+												--with-headers=newlib/libc/include \
+												--disable-werror \
+												--with-system-zlib \
+												--disable-newlib-supplied-syscalls \
+												${GCCFLAGS}
+		log "Building ${GCC} and ${NEWLIB}"
+		make ${MAKEFLAGS}
+		install ${GCC} install
+		cd ..
+		log "Cleaning up ${GCC} and ${NEWLIB}"
+		touch ${STAMPS}/${GCC}-${NEWLIB}.build
+		rm -rf build/* ${GCC} ${NEWLIB}
 fi
 
 if [ ! -e ${STAMPS}/${GDB}.build ]; then
