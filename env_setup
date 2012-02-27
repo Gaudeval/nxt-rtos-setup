@@ -2,19 +2,27 @@
 
 set -a
 
+# Guess the nxt files installation directory
+NXT_PATH=`case $(dirname $0) in /*) dirname $0 ;; *) dirname $PWD/$0 ;; esac` 
+
 # Add a pointer to the trampoline install directory.
-NXT_TRAMPOLINE_PATH="/share/tr_m1_esir2/trampoline/"
+NXT_TRAMPOLINE_PATH="${NXT_PATH}/trampoline/"
 
 # Add a pointer to the cross-compiler install directory.
-NXT_GCC_PATH="/share/tr_m1_esir2/arm-elf/"
+NXT_GCC_PATH="${NXT_PATH}/gcc-arm-elf/"
 NXT_GCC_LIBGCC_VERSION="4.5.1"
 
 # Add a pointer to the application skeleton directory.
-NXT_TEMPLATE_PATH="/share/tr_m1_esir2/app_template/"
+NXT_TEMPLATE_PATH="${NXT_PATH}/app_template/"
 
 # Add gcc-arm to the path.
 PATH="${PATH}:${NXT_GCC_INSTALL}/bin/"
 
-# Add nexttool, goil, nxt_goil and nxt_send to the path.
-PATH="${PATH}:/share/tr_m1_esir2/bin"
+# Add nexttool to the path.
+PATH="${PATH}:${NXT_PATH}/nexttool"
 
+# Add goil to the path.
+PATH="${PATH}:${NXT_TRAMPOLINE_PATH}/bin"
+
+# Add nxt_* scripts to the path
+PATH="${PATH}:${NXT_PATH}/scripts"
