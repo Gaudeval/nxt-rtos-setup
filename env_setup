@@ -3,14 +3,14 @@
 set -a
 
 # Guess the nxt files installation directory
-NXT_PATH=`case $(dirname $0) in /*) dirname $0 ;; *) dirname $PWD/$0 ;; esac` 
+NXT_PATH=`case $(dirname ${BASH_SOURCE:-$0}) in /*) dirname ${BASH_SOURCE:-$0} ;; *) dirname $PWD/${BASH_SOURCE:-$0} ;; esac` 
 
 # Add a pointer to the trampoline install directory.
 NXT_TRAMPOLINE_PATH="${NXT_PATH}/trampoline/"
 
 # Add a pointer to the cross-compiler install directory.
 NXT_GCC_PATH="${NXT_PATH}/gcc-arm-elf/"
-NXT_GCC_LIBGCC_VERSION=`ls -1p ${NXT_GCC_PATH}/lib/gcc/arm-elf/ | grep '/$' | tail -n 1 | sed -e 's#/$##' `
+NXT_GCC_LIBGCC_VERSION=`[ -d "${NXT_GCC_PATH}/lib/gcc/arm-elf/" ] && ls -1p ${NXT_GCC_PATH}/lib/gcc/arm-elf/ | grep '/$' | tail -n 1 | sed -e 's#/$##' `
 
 # Add a pointer to the application skeleton directory.
 NXT_TEMPLATE_PATH="${NXT_PATH}/app_template/"
