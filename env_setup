@@ -10,7 +10,7 @@ NXT_TRAMPOLINE_PATH="${NXT_PATH}/trampoline/"
 
 # Add a pointer to the cross-compiler install directory.
 NXT_GCC_PATH="${NXT_PATH}/gcc-arm-elf/"
-NXT_GCC_LIBGCC_VERSION="4.5.1"
+NXT_GCC_LIBGCC_VERSION=`ls -1p ${NXT_GCC_PATH}/lib/gcc/arm-elf/ | grep '/$' | tail -n 1 | sed -e 's#/$##' `
 
 # Add a pointer to the application skeleton directory.
 NXT_TEMPLATE_PATH="${NXT_PATH}/app_template/"
