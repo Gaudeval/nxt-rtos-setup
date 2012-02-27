@@ -11,7 +11,7 @@ then
 fi
 
 GOIL_BINARY=`which goil 2>/dev/null || true`
-GOIL_TEMPLATES="${TRAMPOLINE_BASE_PATH}/goil/templates"
+GOIL_TEMPLATES="${NXT_TRAMPOLINE_PATH}/goil/templates"
 
 # Test if the goil binary is executable.
 [ -x "${GOIL_BINARY}" ] || \

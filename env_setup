@@ -3,14 +3,14 @@
 set -a
 
 # Add a pointer to the trampoline install directory.
-TRAMPOLINE_BASE_PATH="/share/tr_m1_esir2/trampoline/"
+NXT_TRAMPOLINE_PATH="/share/tr_m1_esir2/trampoline/"
 
 # Add a pointer to the cross-compiler install directory.
-NXT_GCC_INSTALL="/share/tr_m1_esir2/arm-elf/"
+NXT_GCC_PATH="/share/tr_m1_esir2/arm-elf/"
 NXT_GCC_LIBGCC_VERSION="4.5.1"
 
 # Add a pointer to the application skeleton directory.
-NXT_APP_TEMPLATE_PATH="/share/tr_m1_esir2/app_template/"
+NXT_TEMPLATE_PATH="/share/tr_m1_esir2/app_template/"
 
 # Add gcc-arm to the path.
 PATH="${PATH}:${NXT_GCC_INSTALL}/bin/"

@@ -18,8 +18,8 @@ PROJECT_DIRE=`dirname $1`
 
 
 # Check the existence of the required template files.
-NXT_TEMPLATE_SOURCE_FILE="${NXT_APP_TEMPLATE_PATH}/c.m4"
-NXT_TEMPLATE_OIL_FILE="${NXT_APP_TEMPLATE_PATH}/oil.m4"
+NXT_TEMPLATE_SOURCE_FILE="${NXT_TEMPLATE_PATH}/c.m4"
+NXT_TEMPLATE_OIL_FILE="${NXT_TEMPLATE_PATH}/oil.m4"
 
 ([ -e "${NXT_TEMPLATE_SOURCE_FILE}" ] && [ -e "${NXT_TEMPLATE_OIL_FILE}" ]) || \
 	(echo "Error: required template files not found." && exit 1)
@@ -48,9 +48,9 @@ process_template() {
 	   -D_URL_="${CURDIR}/${PROJECT_NAME}" \
 	   -D_DATE_="${DATE}" \
 	   -D_AUTHOR_="${AUTHOR}" \
-	   -D_TRAMPOLINE_="${TRAMPOLINE_BASE_PATH}" \
-	   -D_LIBGCC_DIR_="${NXT_GCC_INSTALL}/lib/gcc/arm-elf/${NXT_GCC_LIBGCC_VERSION}/" \
-	   -D_LIBC_DIR_="${NXT_GCC_INSTALL}/arm-elf/lib" \
+	   -D_TRAMPOLINE_="${NXT_TRAMPOLINE_PATH}" \
+	   -D_LIBGCC_DIR_="${NXT_GCC_PATH}/lib/gcc/arm-elf/${NXT_GCC_LIBGCC_VERSION}/" \
+	   -D_LIBC_DIR_="${NXT_GCC_PATH}/arm-elf/lib" \
 	   "${INPUT_FILE}" \
 	   > ${OUTPUT_FILE}
 
