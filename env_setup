@@ -16,7 +16,7 @@ NXT_GCC_LIBGCC_VERSION=`[ -d "${NXT_GCC_PATH}/lib/gcc/arm-elf/" ] && ls -1p ${NX
 NXT_TEMPLATE_PATH="${NXT_PATH}/app_template/"
 
 # Add gcc-arm to the path.
-PATH="${PATH}:${NXT_GCC_INSTALL}/bin/"
+PATH="${PATH}:${NXT_GCC_PATH}/bin/"
 
 # Add nexttool to the path.
 PATH="${PATH}:${NXT_PATH}/nexttool"
