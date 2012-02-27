@@ -1,0 +1,132 @@
+#!/bin/sh
+
+# Stop if any command fails
+set -e
+
+# Settings
+TRAMPOLINE=trampoline2b49
+TRAMPOLINE_URL=http://trampoline.rts-software.org/IMG/tgz/${TRAMPOLINE}.tgz
+
+LIBPM=libpm-lf
+LIBPM_VERSION=2.0.0
+LIBPM_URL=http://galgas.rts-software.org/download/${LIBPM_VERSION}/${LIBPM}.tar.bz2
+
+SUMMON_DIR=$(pwd)
+
+PREFIX=${SUMMON_DIR}/trampoline
+SOURCES=${SUMMON_DIR}/sources
+STAMPS=${SUMMON_DIR}/stamps
+BUILD=${SUMMON_DIR}/build
+
+# Flags
+CPUS=$(getconf _NPROCESSORS_ONLN)
+PARALLEL=-j$((CPUS + 1))
+echo "${CPUS} cpu's detected running make with '${PARALLEL}' flag"
+
+MAKEFLAGS=${PARALLEL}
+
+##############################################################################
+# OS and Tooldetection section
+# Detects which tools and flags to use
+##############################################################################
+case "$(uname)" in
+	Linux)
+		echo "Found Linux OS."
+		GOIL_MAKEDIR=${BUILD}/${TRAMPOLINE}/goil/makefile_unix/
+	;;
+	Darwin)
+		echo "Found Darwin OS."
+		GOIL_MAKEDIR=${BUILD}/${TRAMPOLINE}/goil/makefile_macosx/
+	;;
+	*)
+		echo "Found unknown OS. Aborting!"
+		exit 1
+	;;
+esac
+
+
+########################################
+# Building Section
+########################################
+
+# Log a message out to the console
+function log {
+			echo "* $*"
+}
+
+# Unpack an archive
+function unpack {
+    log Unpacking $*
+    ARCHIVE=$(ls ${SOURCES}/$1.*)
+    case ${ARCHIVE} in
+		*.bz2)
+			bzip2 -dkc ${ARCHIVE} | tar -xf -
+	    ;;
+		*.gz | *.tgz)
+	    gzip -dc ${ARCHIVE} | tar -xf -
+	    ;;
+		*)
+	    echo "Unknown archive type of $1"
+	    echo ${ARCHIVE}
+	    exit 1
+	    ;;
+    esac
+}
+
+# Fetch a versioned file from a URL
+function fetch {
+    if [ ! -e ${STAMPS}/$1.fetch ]; then
+        log "Downloading $1 sources..."
+        wget -c  $2
+        touch ${STAMPS}/$1.fetch
+    fi
+}
+
+# Create a directory if required
+function touchdir {
+		if [ ! -e $1 ]; then
+				mkdir -p $1
+		fi
+}
+
+# Create required directories
+touchdir ${PREFIX}
+touchdir ${PREFIX}/bin
+touchdir ${SOURCES}
+touchdir ${STAMPS}
+touchdir ${BUILD}
+
+# Download sources
+cd ${SOURCES}
+
+fetch ${TRAMPOLINE} ${TRAMPOLINE_URL}
+fetch ${LIBPM} ${LIBPM_URL}
+
+# Build and install trampoline and goild templates
+cd ${BUILD}
+
+if [ ! -e ${STAMPS}/${TRAMPOLINE}.build ]; then
+	unpack ${TRAMPOLINE}
+	unpack ${LIBPM}
+
+	log "Adding libpm symlink to trampoline"
+	export LIBPM_PATH_ENV_VAR=${BUILD}/libpm
+
+	log "Moving to build goil ($GOIL_MAKEDIR)"
+	cd ${GOIL_MAKEDIR}
+	make ${MAKEFLAGS}
+	cd ${BUILD}
+
+	log "Installing goil binaries."
+	install ${GOIL_MAKEDIR}/goil{,_debug} ${PREFIX}/bin
+
+	log "Installing trampoline and goil templates."
+	cp -r ${BUILD}/${TRAMPOLINE}/{autosar,os,com,debug,machines,make} ${PREFIX}
+	mkdir -p ${BUILD}/${TRAMPOLINE}/goil && cp -r ${BUILD}/${TRAMPOLINE}/goil/templates ${PREFIX}/goil
+
+	touch ${STAMPS}/${TRAMPOLINE}.build
+fi
+
+
+
+log "Done."

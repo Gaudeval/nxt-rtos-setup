@@ -13,8 +13,8 @@ set -e
 # You probably want to customize those
 ##############################################################################
 TARGET=arm-elf		
-PREFIX=$(pwd)/install	# Install location of your final toolchain
-DEPS_PREFIX=$(pwd)/lib_install
+PREFIX=$(pwd)/gcc-${TARGET}	# Install location of your final toolchain
+DEPS_PREFIX=$(pwd)/build/lib_install
 
 # Set to 1 to be quieter while running
 QUIET=0
@@ -161,26 +161,29 @@ fetch ${LIBELF} http://www.mr511.de/software/${LIBELF}.tar.gz
 
 cd ${SUMMON_DIR}
 
-if [ ! -e build ]; then
-    mkdir build
+if [ ! -e build/temp ]; then
+    mkdir -p build/temp
 fi
 
 if [ ! -e ${STAMPS}/${LIBELF}.build ]; then
-	unpack ${LIBELF}
 	cd build
+	unpack ${LIBELF}
+	cd temp
 	log "Configuring ${LIBELF}"
 	../${LIBELF}/configure --prefix=${DEPS_PREFIX} --disable-shared --enable-static
 	make ${MAKEFLAGS}
 	install ${LIBELF} install
 	cd ..
 	log "Cleaning up ${LIBELF}"
-	rm -rf build/* ${LIBELF}
+	rm -rf temp/* ${LIBELF}
+	cd ..
 	touch ${STAMPS}/${LIBELF}.build
 fi
 
 if [ ! -e ${STAMPS}/${GMP}.build ]; then
-	unpack ${GMP}
 	cd build
+	unpack ${GMP}
+	cd temp
 	log "Configuring ${GMP}"
 	../${GMP}/configure --prefix=${DEPS_PREFIX} --disable-shared --enable-static
 	make ${MAKEFLAGS}
@@ -188,39 +191,45 @@ if [ ! -e ${STAMPS}/${GMP}.build ]; then
 	install ${GMP} install
 	cd ..
 	log "Cleaning up ${GMP}"
-	rm -rf build/* ${GMP}
+	rm -rf temp/* ${GMP}
+	cd ..
 	touch ${STAMPS}/${GMP}.build
 fi
 
 if [ ! -e ${STAMPS}/${MPFR}.build ]; then
-	unpack ${MPFR}
 	cd build
+	unpack ${MPFR}
+	cd temp
 	log "Configuring ${MPFR}"
 	../${MPFR}/configure --prefix=${DEPS_PREFIX} --with-gmp=${DEPS_PREFIX} --disable-shared --enable-static
 	make ${MAKEFLAGS}
 	install ${MPFR} install
 	cd ..
 	log "Cleaning up ${MPFR}"
-	rm -rf build/* ${MPFR}
+	rm -rf temp/* ${MPFR}
+	cd ..
 	touch ${STAMPS}/${MPFR}.build
 fi
 
 if [ ! -e ${STAMPS}/${MPC}.build ]; then
-	unpack ${MPC}
 	cd build
+	unpack ${MPC}
+	cd temp
 	log "Configuring ${MPC}"
 	../${MPC}/configure --prefix=${DEPS_PREFIX} --with-gmp=${DEPS_PREFIX} --disable-shared --enable-static
 	make ${MAKEFLAGS} 
 	install ${MPC} install
 	cd ..
 	log "Cleaning up ${MPC}"
-	rm -rf build/* ${MPC}
+	rm -rf temp/* ${MPC}
+	cd ..
 	touch ${STAMPS}/${MPC}.build
 fi
 
 if [ ! -e ${STAMPS}/${BINUTILS}.build ]; then
-    unpack ${BINUTILS}
     cd build
+    unpack ${BINUTILS}
+		cd temp
     log "Configuring ${BINUTILS}"
     ../${BINUTILS}/configure --target=${TARGET} \
                            --prefix=${PREFIX} \
@@ -237,18 +246,20 @@ if [ ! -e ${STAMPS}/${BINUTILS}.build ]; then
     install ${BINUTILS} install
     cd ..
     log "Cleaning up ${BINUTILS}"
+    rm -rf temp/* ${BINUTILS}
+		cd ..
     touch ${STAMPS}/${BINUTILS}.build
-    rm -rf build/* ${BINUTILS}
 fi
 
 if [ ! -e ${STAMPS}/${GCC}-${NEWLIB}.build ]; then
+		cd build
 		unpack ${GCC}
 		unpack ${NEWLIB}
 		log "Adding newlib symlink to gcc"
 		ln -fs `pwd`/${NEWLIB}/newlib ${GCC}
 		log "Adding libgloss symlink to gcc"
 		ln -fs `pwd`/${NEWLIB}/libgloss ${GCC}
-		cd build
+		cd temp
 		log "Configuring ${GCC} and ${NEWLIB}"
 		../${GCC}/configure --target=${TARGET} \
 												--prefix=${PREFIX} \
@@ -275,12 +286,14 @@ if [ ! -e ${STAMPS}/${GCC}-${NEWLIB}.build ]; then
 		cd ..
 		log "Cleaning up ${GCC} and ${NEWLIB}"
 		touch ${STAMPS}/${GCC}-${NEWLIB}.build
-		rm -rf build/* ${GCC} ${NEWLIB}
+		rm -rf temp/* ${GCC} ${NEWLIB}
+		cd ..
 fi
 
 if [ ! -e ${STAMPS}/${GDB}.build ]; then
+		cd build
     unpack ${GDB}
-    cd build
+    cd temp
     log "Configuring ${GDB}"
     ../${GDB}/configure --target=${TARGET} \
                       --prefix=${PREFIX} \
@@ -294,5 +307,6 @@ if [ ! -e ${STAMPS}/${GDB}.build ]; then
     cd ..
     log "Cleaning up ${GDB}"
     touch ${STAMPS}/${GDB}.build
-    rm -rf build/* ${GDB}
+    rm -rf temp/* ${GDB}
+		cd ..
 fi
