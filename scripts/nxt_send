@@ -33,8 +33,14 @@ while [ $# -gt 0 ]; do
 	([ -n "`${NEXTTOOL_BINARY} -listbricks`" ]) ||  \
 		fail "No nxt brick found."
 
+	# Compute file name on brick (includes the fifteen char limit on name lengths, excluding extension)
+	filename=`basename $1 | sed -e 's/^\([[:alnum:][:punct:]]\{1,15\}\).*\.\([[:alnum:]]\{1,\}\)$/\1.\2/'`
+
+	# Remove file from brick (if it exists).
+	${NEXTTOOL_BINARY} /COM=usb -delete="${filename}"
+
 	# Check whether there is sufficient free space on the brick.
-	([ "`${NEXTTOOL_BINARY} /COM=usb -freemem`" -gt "$((`du $1` * ${BLOCKSIZE:-512}))"]) || \
+	([ "`${NEXTTOOL_BINARY} /COM=usb -freemem`" -gt "$((`du -k $1 | cut -f1` * 1024))" ]) || \
 		fail "insufficient space on nxt brick."
 
 	# Send the file on the brick.
@@ -42,7 +48,6 @@ while [ $# -gt 0 ]; do
 		fail "could not send file \"$1\" on brick."
 
 	# Check if the file is on the brick.
-	filename=`basename $1 | sed -e 's/^\([[:alnum:][:punct:]]\{1,15\}\).*\.\([[:alnum:]]\{1,\}\)$/\1.\2/'`
 	([ -n "`${NEXTTOOL_BINARY} /COM=usb -listfiles=\"$filename\" `" ]) || \
 		fail "file \"$(basename $1)\" not found on brick."
 	
