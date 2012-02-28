@@ -9,32 +9,38 @@ then
 	exit 1
 fi
 
+fail()
+{
+	echo "Error: $1"
+	exit 1
+}
+
 # Find the nexttool binary
 NEXTTOOL_BINARY=`which nexttool 2>/dev/null || true`
 
 # Test if the nexttool binary is executable.
 ([ -n "${NEXTTOOL_BINARY}" ] && [ -x "${NEXTTOOL_BINARY}" ]) || \
-	(echo "Error: nexttool binary cannot be executed." && exit 1)
+	fail "nexttool binary cannot be executed."
 
 
 # Send all specified files to the brick through usb.
 while [ $# -gt 0 ]; do
 	# Check the existence of the file.
 	([ -e $1 ] && [ -r $1 ]) || \
-		(echo "Error: file \"$1\" cannot be read." && exit 1)
+		fail "file \"$1\" cannot be read."
 
 	# Test if at least one nxt brick has been found.
 	([ -n "`${NEXTTOOL_BINARY} -listbricks`" ]) ||  \
-		(echo "Error: No nxt brick found." && exit 1)
+		fail "No nxt brick found."
 
 	# Send the file on the brick.
 	(${NEXTTOOL_BINARY} /COM=usb -download="$1") || \
-		(echo "Error: could not send file \"$1\" on brick." && exit 1)
+		fail "could not send file \"$1\" on brick."
 
 	# Check if the file is on the brick.
 	filename=`basename $1 | sed -e 's/^\([[:alnum:][:punct:]]\{1,15\}\).*\.\([[:alnum:]]\{1,\}\)$/\1.\2/'`
 	([ -n "`${NEXTTOOL_BINARY} /COM=usb -listfiles=\"$filename\" `" ]) || \
-		(echo "Error: file \"$(basename $1)\" not found on brick." && exit 1)
+		fail "file \"$(basename $1)\" not found on brick."
 	
 	shift 1
 done
