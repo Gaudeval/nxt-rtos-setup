@@ -34,7 +34,7 @@ while [ $# -gt 0 ]; do
 		fail "No nxt brick found."
 
 	# Check whether there is sufficient free space on the brick.
-	([ "`${NEXTTOOL_BINARY} /COM=usb -freemem`" -gt "$((`du $1` / ${BLOCKSIZE:-512}))"]) || \
+	([ "`${NEXTTOOL_BINARY} /COM=usb -freemem`" -gt "$((`du $1` * ${BLOCKSIZE:-512}))"]) || \
 		fail "insufficient space on nxt brick."
 
 	# Send the file on the brick.
