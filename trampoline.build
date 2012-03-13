@@ -7,8 +7,14 @@ set -e
 TRAMPOLINE=trampoline2b49
 TRAMPOLINE_URL=http://trampoline.rts-software.org/IMG/tgz/${TRAMPOLINE}.tgz
 
+TRAMPOLINE=trampoline
+TRAMPOLINE_REV=1277
+TRAMPOLINE_URL=https://trampoline.rts-software.org/svn/trunk
+TRAMPOLINE_USER=anonymous
+TRAMPOLINE_PASS=anonymous
+
 LIBPM=libpm-lf
-LIBPM_VERSION=2.0.0
+LIBPM_VERSION=2.1.0
 LIBPM_URL=http://galgas.rts-software.org/download/${LIBPM_VERSION}/${LIBPM}.tar.bz2
 
 SUMMON_DIR=$(pwd)
@@ -99,18 +105,24 @@ touchdir ${BUILD}
 # Download sources
 cd ${SOURCES}
 
-fetch ${TRAMPOLINE} ${TRAMPOLINE_URL}
+[ ! -e ${STAMPS}/trampoline.fetch ] && svn export --username ${TRAMPOLINE_USER} --password ${TRAMPOLINE_PASS} --revision ${TRAMPOLINE_REV} ${TRAMPOLINE_URL} ./${TRAMPOLINE}
+touch ${STAMPS}/trampoline.fetch
+
 fetch ${LIBPM} ${LIBPM_URL}
 
 # Build and install trampoline and goild templates
 cd ${BUILD}
 
 if [ ! -e ${STAMPS}/${TRAMPOLINE}.build ]; then
-	unpack ${TRAMPOLINE}
+	cp -r ${SOURCES}/${TRAMPOLINE} ./${TRAMPOLINE}
 	unpack ${LIBPM}
 
 	log "Adding libpm symlink to trampoline"
-	export LIBPM_PATH_ENV_VAR=${BUILD}/libpm
+	cp -r ${BUILD}/libpm ${BUILD}/${TRAMPOLINE}/libpm
+	export LIBPM_PATH_ENV_VAR=${BUILD}/${TRAMPOLINE}/libpm
+	export LIBPM_PATH=${BUILD}/${TRAMPOLINE}/libpm
+	export LIB_PM_PATH=${BUILD}/${TRAMPOLINE}/libpm
+	
 
 	log "Moving to build goil ($GOIL_MAKEDIR)"
 	cd ${GOIL_MAKEDIR}
