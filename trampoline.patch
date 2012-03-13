@@ -1,0 +1,136 @@
+diff -Naur ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.c ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.c
+--- ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.c	2012-03-06 17:13:24.000000000 +0100
++++ ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.c	2012-03-13 17:37:43.000000000 +0100
+@@ -19,7 +19,7 @@
+ 
+ static struct motor_struct {
+   int current_count;
+-  int target_count;
++	int remaining_count; /* Assert remaining_count != 0 implies a non null speed_percent. */
+   int speed_percent;
+   U32 last;
+ } motor[NXT_N_MOTORS];
+@@ -39,8 +39,29 @@
+ void
+ nxt_motor_set_count(U32 n, int count)
+ {
+-  if (n < NXT_N_MOTORS)
++  if (n < NXT_N_MOTORS) {
+     motor[n].current_count = count;
++	}
++}
++
++/* BL */
++void
++nxt_motor_rotate(U32 n, int angle)
++{
++	if (n < NXT_N_MOTORS) {
++		if (angle * motor[n].speed_percent > 0) {
++			motor[n].remaining_count = angle;
++		}
++	}
++}
++
++int
++nxt_motor_target_dir(U32 n)
++{
++	if ((n < NXT_N_MOTORS) & (motor[n].remaining_count != 0))
++		return (motor[n].remaining_count < 0) ? -1:+1;
++	else
++		return 0;
+ }
+ 
+ void
+@@ -51,20 +72,12 @@
+       speed_percent = 100;
+     if (speed_percent < -100)
+       speed_percent = -100;
++		motor[n].remaining_count = 0;
+     motor[n].speed_percent = speed_percent;
+     nxt_avr_set_motor(n, speed_percent, brake);
+   }
+ }
+ 
+-void
+-nxt_motor_command(U32 n, int cmd, int target_count, int speed_percent)
+-{
+-  if (n < NXT_N_MOTORS) {
+-    motor[n].target_count = target_count;
+-    motor[n].speed_percent = speed_percent;
+-  }
+-}
+-
+ 
+ void
+ nxt_motor_1kHz_process(void)
+@@ -72,6 +85,18 @@
+   if (nxt_motor_initialised) {
+     interrupts_this_period = 0;
+     *AT91C_PIOA_IER = MOTOR_INTERRUPT_PINS;
++
++		/* BL */
++		for (U32 n = 0; n < NXT_N_MOTORS; ++n) {
++			if (motor[n].remaining_count)
++				if ((-2 < motor[n].remaining_count) & 
++					  (+2 > motor[n].remaining_count)) 
++				{
++					nxt_avr_set_motor(n, 0, 1);
++					motor[n].remaining_count = 0;
++				}
++		}
++
+   }
+ 
+ }
+@@ -93,14 +118,19 @@
+   U32 edge = value & 1;
+ 
+   if (edge != m->last) {
+-    if (edge && !dir)
++    if (edge && !dir) {
+       m->current_count++;
+-    else if (edge && dir)
++			if (m->remaining_count) m->remaining_count--;
++    } else if (edge && dir) {
+       m->current_count--;
+-    else if (!edge && dir)
++			if (m->remaining_count) m->remaining_count++;
++    } else if (!edge && dir) {
+       m->current_count++;
+-    else if (!edge && !dir)
++			if (m->remaining_count) m->remaining_count--;
++    } else if (!edge && !dir) {
+       m->current_count--;
++			if (m->remaining_count) m->remaining_count++;
++		}
+     m->last = edge;
+   }
+ }
+@@ -161,6 +191,10 @@
+ 
+   *AT91C_PIOA_IER = MOTOR_INTERRUPT_PINS;
+ 
++	/* BL */
++	for (U32 n = 0; n < NXT_N_MOTORS; ++n) 
++		motor[n].remaining_count = 0;
++
+   nxt_motor_initialised = 1;
+ 
+ 
+diff -Naur ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.h ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.h
+--- ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.h	2012-03-06 17:13:24.000000000 +0100
++++ ./machines/arm/nxt/drivers/lejos_nxj/src/nxtvm/platform/nxt/nxt_motors.h	2012-03-13 17:21:51.000000000 +0100
+@@ -10,9 +10,12 @@
+ int nxt_motor_get_count(U32 n);
+ void nxt_motor_set_count(U32 n, int count);
+ 
++void nxt_motor_rotate(U32 n, int angle);
++int nxt_motor_target_dir(U32 n);
++
+ void nxt_motor_set_speed(U32 n, int speed_percent, int brake);
+ 
+-void nxt_motor_command(U32 n, int cmd, int target_count, int speed_percent);
++//void nxt_motor_command(U32 n, int cmd, int target_count, int speed_percent);
+ 
+ void nxt_motor_init(void);
+ 

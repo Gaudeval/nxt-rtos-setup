@@ -136,6 +136,12 @@ if [ ! -e ${STAMPS}/${TRAMPOLINE}.build ]; then
 	cp -r ${BUILD}/${TRAMPOLINE}/{autosar,os,com,debug,machines,make} ${PREFIX}
 	mkdir -p ${PREFIX}/goil && cp -r ${BUILD}/${TRAMPOLINE}/goil/templates ${PREFIX}/goil/
 
+	log "Patching trampoline"
+	log "  [add nxt_motor_rotate function]"
+	cd ${PREFIX}
+	patch -p0 < ${SUMMON_DIR}/trampoline.patch
+
+
 	touch ${STAMPS}/${TRAMPOLINE}.build
 fi
 
