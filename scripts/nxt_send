@@ -40,7 +40,8 @@ while [ $# -gt 0 ]; do
 	${NEXTTOOL_BINARY} /COM=usb -delete="${filename}"
 
 	# Check whether there is sufficient free space on the brick.
-	([ "`${NEXTTOOL_BINARY} /COM=usb -freemem`" -gt "$((`du -k $1 | cut -f1` * 1024))" ]) || \
+	freemem=`${NEXTTOOL_BINARY} /COM=usb -freemem`
+	([ "${freemem:-0}" -gt "$((`du -k $1 | cut -f1` * 1024))" ]) || \
 		fail "insufficient space on nxt brick."
 
 	# Send the file on the brick.
