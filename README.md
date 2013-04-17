@@ -2,7 +2,7 @@ About
 =====
 
 This project provides scripts and files to setup and run [trampoline][]-based
-applications for LEGO&reg; Mindstorms&reg; bricks under Unix systems.
+applications for LEGO&reg; Mindstorms&reg; bricks under Unix systems. 
 
 * `trampoline.build` is used to download and build the [trampoline][] real-time
 	operating system, and the goil application for application oil description files
@@ -45,7 +45,11 @@ applications for LEGO&reg; Mindstorms&reg; bricks under Unix systems.
 
 These scripts have been tested under Mac OSX 10.6 and a Linux 2.6.35 Gentoo.
 Note that, under Linux, users require the write access on a nxt brick device to
-upload files.
+upload files. Write access to nxt bricks can be automatically assigned to all
+users using the following `udev` rule, e.g. under
+`/etc/udef/rules.d/99-nxt.rules`:
+
+`BUS=="usb", ATTRS{idVendor}=="0694", MODE="0666"`
 
 TODO
 ====
