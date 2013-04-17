@@ -24,6 +24,10 @@ applications for LEGO&reg; Mindstorms&reg; bricks under Unix systems.
 	`nxt_goil` generates a Makefile for an application given its description in
 	the oil format and the `goil` application. 
 
+	`nxt_reenv` alters an oil description file to befit compilation under the
+	current environment, [trampoline][] and [gcc][]. A `_`-prefixed copy of the
+	original is saved.
+
 	`nxt_send` uploads files to a nxt brick through connected through USB, relying
 	on the `nexttool` application for operations.
 
