@@ -59,6 +59,8 @@ TODO
 	the same name than the uploaded one are first erased from the brick, before
 	checking the free space.
 
+* `env_setup` relies on bash `BASH_SOURCE` to guess the environment root
+  directory. A more posix-compliant method is desirable.
 
 
 [trampoline]: http://trampoline.rts-software.org/

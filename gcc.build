@@ -235,7 +235,7 @@ if [ ! -e ${STAMPS}/${BINUTILS}.build ]; then
                            --prefix=${PREFIX} \
 													 --disable-shared \
                            --enable-interwork \
-                           --enable-multilib \
+                           --disable-multilib \
                            --with-gnu-as \
                            --with-gnu-ld \
                            --disable-nls \
@@ -285,9 +285,9 @@ if [ ! -e ${STAMPS}/${GCC}-${NEWLIB}.build ]; then
 		install ${GCC} install
 		cd ..
 		log "Cleaning up ${GCC} and ${NEWLIB}"
-		touch ${STAMPS}/${GCC}-${NEWLIB}.build
 		rm -rf temp/* ${GCC} ${NEWLIB}
 		cd ..
+		touch ${STAMPS}/${GCC}-${NEWLIB}.build
 fi
 
 if [ ! -e ${STAMPS}/${GDB}.build ]; then
@@ -306,7 +306,7 @@ if [ ! -e ${STAMPS}/${GDB}.build ]; then
     install ${GDB} install
     cd ..
     log "Cleaning up ${GDB}"
-    touch ${STAMPS}/${GDB}.build
     rm -rf temp/* ${GDB}
 		cd ..
+    touch ${STAMPS}/${GDB}.build
 fi
